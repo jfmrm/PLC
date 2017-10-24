@@ -33,14 +33,15 @@ public class MultiThreadSearchTreeSync implements Runnable{
 	
 	public void run() {
 		
-		int n = this.random.nextInt();
 		
 		for (int i = 0; i < 2000; i++) {
+			int n = this.random.nextInt();
+			
 			if(btree == null) {
 				btree = new MultiThreadSearchTreeSync();
 			} 
 			
-			if (this.n == -1) {
+			if (btree.n == -1) {
 				btree.n = n;
 			} else  {
 				this.btree.insert(random.nextInt(100));
