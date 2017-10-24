@@ -24,16 +24,12 @@ public class MultiThreadSearchTreeLock implements Runnable{
 				
 			} else if (this.l != null && n <= this.n) {
 				boolean lockedL = l.lock.tryLock();
-				try {
-					while (!(lockedL)) {
-						if (lockedL) l.lock.unlock();
-						lockedL = l.lock.tryLock();
-					}
-					this.lock.unlock();
-					this.l.insert(n);
-				} finally {
+				while (!(lockedL)) {
 					if (lockedL) l.lock.unlock();
+					lockedL = l.lock.tryLock();
 				}
+				this.lock.unlock();
+				this.l.insert(n);
 			}
 			
 		
@@ -42,24 +38,21 @@ public class MultiThreadSearchTreeLock implements Runnable{
 				r.n = n;
 			}  else if (this.r != null && n > this.n) {
 				boolean lockedR = r.lock.tryLock();
-				try {
-					while(!(lockedR)){
-						if (lockedR) l.lock.unlock();
-						lockedR = l.lock.tryLock();
-					}
-					
-					this.r.insert(n);
-				} finally {
-					if (lockedR) r.lock.tryLock();
+				while(!(lockedR)){
+					if (lockedR) r.lock.unlock();
+					lockedR = r.lock.tryLock();
 				}
+				this.lock.unlock();
+				this.r.insert(n);
 			}
 			
 	}
 	
 	public void run() {
-		int n = this.random.nextInt();
 		
 		for (int i = 0; i < 2000; i++) {
+			int n = this.random.nextInt();
+			
 			if(btree == null) {
 				btree = new MultiThreadSearchTreeLock();
 			} 
