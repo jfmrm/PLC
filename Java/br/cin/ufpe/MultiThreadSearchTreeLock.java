@@ -1,3 +1,4 @@
+package br.cin.ufpe;
 import java.util.Random;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,30 +20,35 @@ public class MultiThreadSearchTreeLock implements Runnable{
 	
 	public void insert(int n){
 			if (this.l == null && n <= this.n) {
-				this.l = new MultiThreadSearchTreeLock();
-				l.n = n;
+				boolean locked = this.lock.tryLock();
+				try {
+					while (!(locked)) {
+						locked = this.lock.tryLock();
+					}
+					this.l = new MultiThreadSearchTreeLock();
+					l.n = n;
+				} finally {
+					this.lock.unlock();
+				}
 				
 			} else if (this.l != null && n <= this.n) {
-				boolean lockedL = l.lock.tryLock();
-				while (!(lockedL)) {
-					if (lockedL) l.lock.unlock();
-					lockedL = l.lock.tryLock();
-				}
-				this.lock.unlock();
 				this.l.insert(n);
 			}
 			
 		
 			if (this.r == null && n > this.n) {
-				this.r = new MultiThreadSearchTreeLock();
-				r.n = n;
-			}  else if (this.r != null && n > this.n) {
-				boolean lockedR = r.lock.tryLock();
-				while(!(lockedR)){
-					if (lockedR) r.lock.unlock();
-					lockedR = r.lock.tryLock();
+				boolean locked = this.lock.tryLock();
+				try {
+					while(!(locked)){
+						locked = this.lock.tryLock();
+					}
+					this.r = new MultiThreadSearchTreeLock();
+					r.n = n;
+				} finally {
+					this.lock.unlock();
 				}
-				this.lock.unlock();
+				
+			}  else if (this.r != null && n > this.n) {
 				this.r.insert(n);
 			}
 			
