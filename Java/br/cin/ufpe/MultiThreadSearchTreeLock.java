@@ -12,6 +12,7 @@ public class MultiThreadSearchTreeLock implements Runnable{
 	
 	static Random random = new Random();
 	static MultiThreadSearchTreeLock btree = null;
+	static int numberOfNodes = 0;
 	
 	public MultiThreadSearchTreeLock() {
 		this.n = -1;
@@ -71,6 +72,16 @@ public class MultiThreadSearchTreeLock implements Runnable{
 		}
 	}
 	
+	public static void count(MultiThreadSearchTreeLock node) {
+		if (node.l != null) {
+			count(node.l);
+		} 
+		if (node.r != null) {
+			count(node.r);
+		}
+		 numberOfNodes += 1;
+	}
+	
 	public static void main(String[] args) {
 		Thread[] threadList = new Thread[50];
 		long t0 = System.currentTimeMillis();
@@ -88,6 +99,8 @@ public class MultiThreadSearchTreeLock implements Runnable{
 			}
 		}
 		System.out.println("Time: " + (System.currentTimeMillis() - t0 + " milisseconds"));
+		count(btree);
+		System.out.println("Foram inseridos " + numberOfNodes + " elementos");
 	}
 }
 
