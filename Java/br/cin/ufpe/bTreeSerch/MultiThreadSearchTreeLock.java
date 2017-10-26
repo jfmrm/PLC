@@ -1,4 +1,4 @@
-package br.cin.ufpe;
+package br.cin.ufpe.bTreeSerch;
 import java.util.Random;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

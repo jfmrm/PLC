@@ -1,47 +1,35 @@
-package br.cin.ufpe;
+package br.cin.ufpe.bTreeSerch;
 import java.util.Random;
 
-public class MultiThreadSearchTreeSyncOptmized implements Runnable{
-	int n;
-	MultiThreadSearchTreeSyncOptmized r;
-	MultiThreadSearchTreeSyncOptmized l;
-	boolean locked;
-	
-	static int numberOfNodes = 0;
-	static Random random = new Random();
-	static MultiThreadSearchTreeSyncOptmized btree = null;
-	
-	public MultiThreadSearchTreeSyncOptmized() {
-		this.n = -1;
-		this.locked = false;
-	}
 
-	public synchronized void put(int n, MultiThreadSearchTreeSyncOptmized node) {
-		while (node.locked) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		node.locked = true;
-		node.n = n;
-		node.locked = false;
-		notifyAll();
+public class MultiThreadSearchTreeSync implements Runnable{
+	int n;
+	MultiThreadSearchTreeSync r;
+	MultiThreadSearchTreeSync l;
+
+	static Random random = new Random();
+	static MultiThreadSearchTreeSync btree = null;
+	static int numberOfNodes = 0;
+	
+	public MultiThreadSearchTreeSync() {
+		this.n = -1;
 	}
 	
 	public void insert(int n){
 		if (this.l == null && n <= this.n) {
-			this.l = new MultiThreadSearchTreeSyncOptmized();
-			put(n, this.l);
+			this.l = new MultiThreadSearchTreeSync();
+			l.n = n;
 		} else if (this.r == null && n > this.n) {
-			this.r = new MultiThreadSearchTreeSyncOptmized();
-			put(n, this.r);
+			this.r = new MultiThreadSearchTreeSync();
+			r.n = n;
 		} else if (this.l != null && n <= this.n) {
-			this.l.insert(n);
+			synchronized (this.l){
+				this.l.insert(n);
+			}
 		} else if (this.r != null && n > this.n) {
-			this.r.insert(n);
+			synchronized (this.r){
+				this.r.insert(n);
+			}
 		}
 	}
 	
@@ -52,7 +40,7 @@ public class MultiThreadSearchTreeSyncOptmized implements Runnable{
 			int n = this.random.nextInt();
 			
 			if(btree == null) {
-				btree = new MultiThreadSearchTreeSyncOptmized();
+				btree = new MultiThreadSearchTreeSync();
 			} 
 			
 			if (btree.n == -1) {
@@ -63,7 +51,7 @@ public class MultiThreadSearchTreeSyncOptmized implements Runnable{
 		}
 	}
 	
-	public static void count(MultiThreadSearchTreeSyncOptmized node) {
+	public static void count(MultiThreadSearchTreeSync node) {
 		if (node.l != null) {
 			count(node.l);
 		} 
@@ -78,7 +66,7 @@ public class MultiThreadSearchTreeSyncOptmized implements Runnable{
 		long t0 = System.currentTimeMillis();
 		
 		for(int i = 0; i < 50; i ++ ){
-			threadList[i] = new Thread(new MultiThreadSearchTreeSyncOptmized());
+			threadList[i] = new Thread(new MultiThreadSearchTreeSync());
 			threadList[i].start();
 		}
 		
