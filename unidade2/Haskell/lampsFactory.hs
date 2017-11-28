@@ -28,14 +28,15 @@ encaixota :: MVar Int -> MVar Int -> IO()
 encaixota lamps boxes =
   do
     l <- takeMVar lamps
-    putMVar lamps(l+1)
 
     if l == 50 then
       do
         b <- takeMVar boxes
         putMVar boxes(b+1)
+        putMvar lamps(0)
         putStrLn("caixa fechada")
     else
+      putMVar lamps(l)
       putStrLn("lampada encaixotada")
 
 main :: IO()
