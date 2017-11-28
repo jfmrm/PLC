@@ -3,28 +3,28 @@ module Main where
 import Control.Concurrent
 import Control.Concurrent.MVar
 
-makeBulbo :: MVar int -> IO()
+makeBulbo :: MVar Int -> IO()
 makeBulbo bulbo =
   do
     p <- takeMVar bulbo
     putMVar bulbo(p+1)
-    putStrln("produzindo bulbo")
+    putStrLn("produzindo bulbo")
 
-makeSocket :: MVar int -> IO()
+makeSocket :: MVar Int -> IO()
 makeSocket socket =
   do
     p <- takeMVar socket
     putMVar socket(p+1)
-    putStrln("produzindo Socket")
+    putStrLn("produzindo Socket")
 
-makeEmbalagem :: MVar int -> IO()
+makeEmbalagem :: MVar Int -> IO()
 makeEmbalagem embalagem =
   do
     p <- takeMVar embalagem
     putMVar embalagem(p+1)
-    putStrln("produzindo embalagem")
+    putStrLn("produzindo embalagem")
 
-makeLampada :: MVar int -> MVar int -> MVar int -> MVar int -> IO()
+makeLampada :: MVar Int -> MVar Int -> MVar Int -> MVar Int -> IO()
 makeLampada bulbo socket lampada embalagem =
   do
     b <- takeMVar bulbo
@@ -36,9 +36,9 @@ makeLampada bulbo socket lampada embalagem =
     putMVar socket(s-1)
     putMVar lampada(l+1)
     putMVar embalagem(e-1)
-    putStrln("produzindo lampada")
+    putStrLn("produzindo lampada")
 
-encaixota :: MVar int -> MVar int -> MVar int -> IO()
+encaixota :: MVar Int -> MVar Int -> MVar Int -> IO()
 encaixota lampada caixa deposito =
   do
     l <- takeMVar lampada
@@ -47,27 +47,28 @@ encaixota lampada caixa deposito =
     if c >= 50
     then
       do
-        c <- 0
+        putMVar caixa(0)
+        c <- takeMVar caixa
         d <- takeMVar deposito
         putMVar deposito(d+1)
         putMVar lampada(l-1)
         putMVar caixa(c+1)
-        putStrln("Encaixotando lampada")
+        putStrLn("Encaixotando lampada")
     else
       do
         putMVar lampada(l-1)
         putMVar caixa(c+1)
-        putStrln("Encaixotando lampada")
+        putStrLn("Encaixotando lampada")
 
 main :: IO()
 main =
   do
-    bulbo <- new MVar 0
-    socket <- new MVar 0
-    lampada <- new MVar 0
-    embalagem <- new MVar 0
-    caixa <- new MVar 0
-    deposito <- new MVar 0
+    bulbo <- newMVar 0
+    socket <- newMVar 0
+    lampada <- newMVar 0
+    embalagem <- newMVar 0
+    caixa <- newMVar 0
+    deposito <- newMVar 0
 
     forkIO(makeBulbo bulbo)
     forkIO(makeSocket socket)
@@ -76,3 +77,4 @@ main =
     forkIO(encaixota lampada caixa deposito)
 
     main
+    return()
