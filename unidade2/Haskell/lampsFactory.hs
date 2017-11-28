@@ -33,6 +33,7 @@ encaixota lamps boxes =
       do
         b <- takeMVar boxes
         putMVar boxes(b+1)
+        putMvar lamps(0)
         putStrLn("caixa fechada")
     else
       putMVar lamps(l)
