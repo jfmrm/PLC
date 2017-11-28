@@ -5,26 +5,38 @@ import Control.Concurrent
 
 type Conta = TVar Int
 
-saque :: Conta -> Int -> IO()
+saque :: Conta -> Int -> STM ()
 saque conta quantia =
   do
-    atomically(
-      do
-        s <- readTVar conta
-        writeTVar conta (s-quantia))
+    s <- readTVar conta
+    writeTVar conta (s-quantia)
 
-deposito :: Conta -> Int -> IO()
+deposito :: Conta -> Int -> STM ()
 deposito conta valor =
   do
-    atomically(
-      do
-        s <- readTVar conta
-        writeTVar conta (s+valor))
-        
+    saque conta (valor * (-1))
+
+saque2 :: Conta -> Int -> STM ()
+saque2 conta valor =
+  do
+    s <- readTVar conta
+    if (s-valor) < 0 then
+      retry
+    else
+      writeTVar conta(s-valor)
+
+saque3 :: Conta -> Conta-> Int -> STM ()
+saque3 contaA contaB valor =
+  do
+    orElse (saque2 contaA valor) (saque2 contaB valor)
+
 main :: IO()
 main =
   do
-    conta <- atomically(newTVar 200)
-    forkIO(saque conta 100)
-    v <- atomically(readTVar conta)
+    contaA <- atomically(newTVar 200)
+    contaB <- atomically(newTVar 300)
+    forkIO(atomically(saque3 contaA contaB 300))
+    v <- atomically(readTVar contaA)
+    z <- atomically(readTVar contaB)
     putStrLn (show v)
+    putStrLn (show z)
